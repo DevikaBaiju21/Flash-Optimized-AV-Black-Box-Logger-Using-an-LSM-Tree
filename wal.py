@@ -8,7 +8,8 @@ class WAL:
         self.sync = sync            # True = force data to the physical disk on every append
         self.bytes_written = 0      # used for the write-amplification statistic
         self._f = open(path, "a", encoding="utf-8")
-        def append(self, key, value, deleted):
+
+    def append(self, key, value, deleted):
         line = f"{key}|{value}|{1 if deleted else 0}\n"
         self._f.write(line)
         self._f.flush()
@@ -34,7 +35,8 @@ class WAL:
                     continue                      # corrupted line
                 records.append((parts[0], parts[1], parts[2] == "1"))
         return records
-        def reset(self):
+
+    def reset(self):
         """Empty the log. Only call this after the SSTable flush succeeded."""
         self._f.close()
         open(self.path, "w", encoding="utf-8").close()
@@ -43,9 +45,3 @@ class WAL:
     def close(self):
         if not self._f.closed:
             self._f.close()
-
-
-    
-
-
-    
