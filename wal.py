@@ -34,5 +34,18 @@ class WAL:
                     continue                      # corrupted line
                 records.append((parts[0], parts[1], parts[2] == "1"))
         return records
+        def reset(self):
+        """Empty the log. Only call this after the SSTable flush succeeded."""
+        self._f.close()
+        open(self.path, "w", encoding="utf-8").close()
+        self._f = open(self.path, "a", encoding="utf-8")
+
+    def close(self):
+        if not self._f.closed:
+            self._f.close()
+
+
+    
+
 
     
