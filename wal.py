@@ -1,14 +1,4 @@
-"""
-MEMBER 2: Write-Ahead Log (WAL) and crash recovery.
 
-Every record is appended to wal.log BEFORE it goes into the MemTable.
-RAM is lost in a crash, the file is not, so on restart we replay the WAL
-and rebuild the MemTable.
-
-  append : O(1)  (one sequential write at the end of the file)
-  replay : O(w)  (w = records in the log)
-  reset  : O(1)  (called after the memtable was safely flushed to an SSTable)
-"""
 import os
 
 
