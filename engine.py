@@ -14,3 +14,10 @@ class LSMEngine:
         self.sstables = SSTableManager(directory)
         self.wal = WAL(os.path.join(directory, "wal.log"), sync=sync)
         self.logical_bytes = 0          # bytes the user asked us to store
+
+    def put(self, sensor_id, timestamp, value):
+        key = make_key(sensor_id, timestamp)
+        value = check_value(value)
+        self.wal.append(key, value, False)          # 1. durable log first
+        self.memtable.put(key, value)               # 2. then memory
+        self.logical_bytes += len(key) + len(value)
