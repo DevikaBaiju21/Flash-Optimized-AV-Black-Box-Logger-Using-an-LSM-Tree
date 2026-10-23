@@ -51,3 +51,10 @@ class LSMEngine:
                 self.memtable.delete(key)
             else:
                 self.memtable.put(key, value)
+        def get(self, sensor_id, timestamp):
+        return self.sstables.get(make_key(sensor_id, timestamp), self.memtable)
+
+    def range(self, sensor_id, t_start, t_end):
+        """All readings of one sensor with t_start <= timestamp <= t_end."""
+        return self.sstables.range(make_key(sensor_id, t_start),
+                                   make_key(sensor_id, t_end), self.memtable)
