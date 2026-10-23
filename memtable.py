@@ -49,5 +49,12 @@ class MemTable:
 
     def clear(self):
         self.data.clear()
+     def sorted_items(self):
+        """All records as [(key, (value, deleted)), ...] sorted by key. Used by flush."""
+        return sorted(self.data.items())
+
+    def range(self, start, end):
+        """Records with start <= key <= end, as {key: (value, deleted)}."""
+        return {k: v for k, v in self.data.items() if start <= k <= end}
 
 
