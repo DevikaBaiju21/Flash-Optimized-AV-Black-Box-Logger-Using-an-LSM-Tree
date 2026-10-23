@@ -83,3 +83,13 @@ class SSTableManager:
         records = [(k, v, d) for k, (v, d) in memtable.sorted_items()]
         return self.write(records)
 
+    def get(self, key, memtable):
+        hit = memtable.get(key)
+        if hit is not None:
+            value, deleted = hit
+            return None if deleted else value
+        for path in reversed(self.list_files()):          
+            rec = get_from_file(path, key)
+            if rec is not None:
+                return None if rec[2] else rec[1]          
+        return None
