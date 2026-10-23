@@ -1,22 +1,6 @@
-"""
-MEMBER 4: Compaction.
-
-Why: every flush adds another SSTable, so reads must search more files and old /
-overwritten / deleted records waste space.
-
-How: a K-WAY MERGE of all SSTables using a min-heap (heapq.merge).
-  - Each file is already sorted, so merging is a single streaming pass.
-  - If the same key appears in several files, the NEWEST file wins.
-  - Tombstones are dropped (safe because we merge ALL files, so no older
-    copy of the key survives anywhere).
-  - The merged result is written as ONE new SSTable, then the old files are deleted.
 
 Complexity: O(N log k)  (N = total records, k = number of files).
 
-Limitation (mention in viva): a crash between writing the new file and deleting
-the old ones could resurrect a deleted key. A real system fixes this with a
-manifest file. Out of scope here.
-"""
 import heapq
 import os
 
