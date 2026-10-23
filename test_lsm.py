@@ -1,6 +1,4 @@
-"""
-MEMBER 4: Edge-case tests. Run:  python -m unittest -v
-"""
+
 import os
 import shutil
 import tempfile
