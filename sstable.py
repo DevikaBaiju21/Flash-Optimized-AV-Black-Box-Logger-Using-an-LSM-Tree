@@ -62,6 +62,24 @@ class SSTableManager:
     def flush(self, memtable):
         if memtable.size() == 0:
             return None
+        def iter_file(self, path):
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.rstrip("\n").split("|")
+                if len(parts) == 3:
+                    yield parts[0], parts[1], parts[2] == "1"
+
+    def load(self, path):
+        return list(self.iter_file(path))
+
+    def get_from_file(self, path, key):
+        records = self.load(path)
+        keys = [r[0] for r in records]
+        i = bisect.bisect_left(keys, key)
+        if i < len(keys) and keys[i] == key:
+            return records[i]
+        return None
+
         records = [(k, v, d) for k, (v, d) in memtable.sorted_items()]
         return self.write(records)
 
