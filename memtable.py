@@ -28,3 +28,26 @@ def check_value(value):
         raise ValueError("value must not contain '|' or newline characters")
     return value
 
+class MemTable:
+    def __init__(self):
+        self.data = {}  # key -> (value, deleted)
+
+    def put(self, key, value):
+        """Insert or overwrite a record."""
+        self.data[key] = (value, False)
+
+    def delete(self, key):
+        """Delete = insert a tombstone. Nothing is erased; compaction removes it later."""
+        self.data[key] = ("", True)
+
+    def get(self, key):
+        """Return (value, deleted) or None if this memtable has never seen the key."""
+        return self.data.get(key)
+
+    def size(self):
+        return len(self.data)
+
+    def clear(self):
+        self.data.clear()
+
+
