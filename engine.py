@@ -27,3 +27,16 @@ class LSMEngine:
         self.wal.append(key, "", True)
         self.memtable.delete(key)
         self.logical_bytes += len(key)
+
+    def flush(self):
+        """Memtable -> new SSTable, then clear memtable and WAL (in this order!)."""
+        path = self.sstables.flush(self.memtable)
+        if path is None:
+            return None
+        self.memtable.clear()
+        self.wal.reset()
+        return path
+
+    def _maybe_flush(self):
+        if self.memtable.size() >= self.flush_threshold:
+            self.flush()
