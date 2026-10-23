@@ -1,7 +1,4 @@
-"""
-MEMBER 4: Live demo. Run:  python main.py
-Walks through every feature faculty may ask to see.
-"""
+
 import shutil
 
 from engine import LSMEngine
