@@ -21,3 +21,9 @@ class LSMEngine:
         self.wal.append(key, value, False)          # 1. durable log first
         self.memtable.put(key, value)               # 2. then memory
         self.logical_bytes += len(key) + len(value)
+        
+    def delete(self, sensor_id, timestamp):
+        key = make_key(sensor_id, timestamp)
+        self.wal.append(key, "", True)
+        self.memtable.delete(key)
+        self.logical_bytes += len(key)
