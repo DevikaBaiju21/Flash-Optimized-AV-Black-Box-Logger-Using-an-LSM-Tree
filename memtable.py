@@ -21,3 +21,10 @@ def make_key(sensor_id, timestamp):
     if not isinstance(timestamp, int) or timestamp < 0 or timestamp >= 10 ** 10:
         raise ValueError("timestamp must be an integer in [0, 10^10)")
     return f"{sensor_id}:{timestamp:010d}"
+def check_value(value):
+    """Values are stored as text. The separator and newlines would break the file format."""
+    value = str(value)
+    if SEP in value or "\n" in value or "\r" in value:
+        raise ValueError("value must not contain '|' or newline characters")
+    return value
+
