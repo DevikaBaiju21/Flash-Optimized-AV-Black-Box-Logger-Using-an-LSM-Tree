@@ -93,3 +93,16 @@ class SSTableManager:
             if rec is not None:
                 return None if rec[2] else rec[1]          
         return None
+    def range(self, start, end, memtable):
+        merged = {}
+        for path in self.list_files():                     
+            records = self.load(path)
+            keys = [r[0] for r in records]
+            i = bisect.bisect_left(keys, start)            
+            while i < len(records) and records[i][0] <= end:
+                key, value, deleted = records[i]
+                merged[key] = (value, deleted)             
+                i += 1
+        for key, (value, deleted) in memtable.range(start, end).items():
+            merged[key] = (value, deleted)                 
+        return [(k, v) for k, (v, d) in sorted(merged.items()) if not d]
