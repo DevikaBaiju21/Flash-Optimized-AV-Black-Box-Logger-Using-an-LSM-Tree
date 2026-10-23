@@ -44,3 +44,24 @@ class SSTableManager:
     def next_number(self):
         files = self.list_files()
         return 1 if not files else self.number_of(files[-1]) + 1
+        def write(self, records, number=None):
+        if number is None:
+            number = self.next_number()
+        final_path = self.path_of(number)
+        tmp_path = final_path + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            for key, value, deleted in records:
+                line = f"{key}|{value}|{1 if deleted else 0}\n"
+                f.write(line)
+                self.bytes_written += len(line.encode("utf-8"))
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, final_path)
+        return final_path
+
+    def flush(self, memtable):
+        if memtable.size() == 0:
+            return None
+        records = [(k, v, d) for k, (v, d) in memtable.sorted_items()]
+        return self.write(records)
+
