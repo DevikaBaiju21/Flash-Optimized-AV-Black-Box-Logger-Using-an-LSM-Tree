@@ -1,0 +1,16 @@
+import os
+
+from memtable import MemTable, check_value, make_key
+from sstable import SSTableManager
+from wal import WAL
+
+
+class LSMEngine:
+    def __init__(self, directory="data", flush_threshold=100, compact_after=4, sync=True):
+        os.makedirs(directory, exist_ok=True)
+        self.flush_threshold = flush_threshold
+        self.compact_after = compact_after
+        self.memtable = MemTable()
+        self.sstables = SSTableManager(directory)
+        self.wal = WAL(os.path.join(directory, "wal.log"), sync=sync)
+        self.logical_bytes = 0          # bytes the user asked us to store
