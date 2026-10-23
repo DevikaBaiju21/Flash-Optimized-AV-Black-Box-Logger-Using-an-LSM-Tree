@@ -44,7 +44,8 @@ class SSTableManager:
     def next_number(self):
         files = self.list_files()
         return 1 if not files else self.number_of(files[-1]) + 1
-        def write(self, records, number=None):
+    
+    def write(self, records, number=None):
         if number is None:
             number = self.next_number()
         final_path = self.path_of(number)
@@ -62,7 +63,10 @@ class SSTableManager:
     def flush(self, memtable):
         if memtable.size() == 0:
             return None
-        def iter_file(self, path):
+        records = [(k, v, d) for k, (v, d) in memtable.sorted_items()]
+        return self.write(records)
+    
+    def iter_file(self, path):
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 parts = line.rstrip("\n").split("|")
@@ -79,9 +83,6 @@ class SSTableManager:
         if i < len(keys) and keys[i] == key:
             return records[i]
         return None
-
-        records = [(k, v, d) for k, (v, d) in memtable.sorted_items()]
-        return self.write(records)
 
     def get(self, key, memtable):
         hit = memtable.get(key)
