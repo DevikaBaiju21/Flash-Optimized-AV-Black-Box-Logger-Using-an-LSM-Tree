@@ -14,6 +14,7 @@ class LSMEngine:
         self.sstables = SSTableManager(directory)
         self.wal = WAL(os.path.join(directory, "wal.log"), sync=sync)
         self.logical_bytes = 0          # bytes the user asked us to store
+        self._recover()
 
     def put(self, sensor_id, timestamp, value):
         key = make_key(sensor_id, timestamp)
@@ -21,12 +22,14 @@ class LSMEngine:
         self.wal.append(key, value, False)          # 1. durable log first
         self.memtable.put(key, value)               # 2. then memory
         self.logical_bytes += len(key) + len(value)
+        self._maybe_flush()
         
     def delete(self, sensor_id, timestamp):
         key = make_key(sensor_id, timestamp)
         self.wal.append(key, "", True)
         self.memtable.delete(key)
         self.logical_bytes += len(key)
+        self._maybe_flush()
 
     def flush(self):
         """Memtable -> new SSTable, then clear memtable and WAL (in this order!)."""
@@ -36,7 +39,15 @@ class LSMEngine:
         self.memtable.clear()
         self.wal.reset()
         return path
+    
 
     def _maybe_flush(self):
         if self.memtable.size() >= self.flush_threshold:
             self.flush()
+
+    def _recover(self):
+        for key, value, deleted in self.wal.replay():
+            if deleted:
+                self.memtable.delete(key)
+            else:
+                self.memtable.put(key, value)
